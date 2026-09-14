@@ -13,24 +13,25 @@
 
 <style>
   :root {
-    --cor-principal:    #1b2a4a; /* Azul escuro do logotipo Sorriso Barber */
-    --cor-detalhe:      #b91c1c; /* Vermelho do Barber Pole e logotipo */
-    --cor-fundo-escuro: #0f172a;
-    --cor-fundo-claro:  #f8fafc;
-    --cor-conversao:    #25d366; /* Verde WhatsApp */
-    --cor-cartao:       #ffffff;
-    --raio:             8px;
+    --cor-principal:   #1b2a4a; /* Azul escuro do logotipo Sorriso Barber */
+    --cor-detalhe:     #b91c1c; /* Vermelho do Barber Pole e logotipo */
+    --cor-fundo-escuro:#0f172a;
+    --cor-fundo-claro: #f8fafc;
+    --cor-conversao:   #25d366; /* Verde WhatsApp */
+    --cor-cartao:      #ffffff;
+    --raio:            8px;
     --fonte: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
   body {
     font-family: var(--fonte);
     background: var(--cor-fundo-claro);
     color: #1e293b;
     line-height: 1.5;
-    padding-bottom: 70px;
+    padding-bottom: 20px;
   }
   a { color: inherit; text-decoration: none; }
   a:focus-visible, button:focus-visible { outline: 2px solid var(--cor-detalhe); outline-offset: 2px; }
@@ -49,7 +50,8 @@
   }
 
   /* Hero Section */
-  .hero { background: var(--cor-fundo-escuro); color: #ffffff; padding: 40px 0 48px; text-align: center; }
+  .hero { background: var(--cor-fundo-escuro); color: #ffffff; padding: 40px 0 48px; text-align: center; position: relative; overflow: hidden; }
+  .hero .wrap { position: relative; z-index: 2; }
   .hero-logo { width: 140px; height: auto; margin-bottom: 16px; }
   .hero h1 { font-size: clamp(1.8rem, 5vw, 2.4rem); font-weight: 800; color: #ffffff; }
   .hero h1 span { color: var(--cor-detalhe); }
@@ -66,6 +68,28 @@
     transition: transform 0.12s ease, box-shadow 0.12s ease;
   }
   .hero .cta:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(37,99,235,0.25); }
+
+  /* Poste de barbeiro animado, por baixo do herói */
+  .poste-barbeiro {
+    height: 6px; width: 100%;
+    background: repeating-linear-gradient(-45deg,
+      #b91c1c 0 14px, #f8fafc 14px 28px, #1b2a4a 28px 42px);
+    background-size: 60px 100%;
+    animation: rodarPoste 1.4s linear infinite;
+  }
+  @keyframes rodarPoste { from { background-position: 0 0; } to { background-position: 60px 0; } }
+
+  /* Logótipo com leve balanço, como se estivesse pendurado */
+  .hero-logo.logo-anim { animation: balancarLogo 4.5s ease-in-out infinite; transform-origin: top center; }
+  @keyframes balancarLogo {
+    0%, 100% { transform: rotate(0deg) translateY(0); }
+    25%      { transform: rotate(-3deg) translateY(-2px); }
+    75%      { transform: rotate(3deg) translateY(-2px); }
+  }
+
+  /* Ícones flutuantes gerados por JavaScript */
+  .icone-flutuante { position: absolute; z-index: 1; color: rgba(255,255,255,0.16); pointer-events: none; }
+  .icone-flutuante svg { width: 100%; height: 100%; display: block; }
 
   /* Secções Gerais */
   section { padding: 36px 0; }
@@ -100,7 +124,7 @@
     display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;
   }
   .grelha-fotos img {
-    width: 100%; height: 220px; object-fit: cover; border-radius: var(--raio);
+    width: 100%; height: 190px; object-fit: cover; border-radius: var(--raio);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #cbd5e1;
   }
 
@@ -118,10 +142,53 @@
 
   /* Botão Fixo */
   .whatsapp-fixo {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--cor-conversao); color: #042f14;
-    text-align: center; padding: 14px; font-weight: 800; font-size: 1rem; z-index: 20;
+    position: fixed; bottom: 20px; right: 20px; z-index: 20;
+    width: 58px; height: 58px; border-radius: 50%;
+    background: var(--cor-conversao);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 24px rgba(4,47,20,0.35);
   }
+  .whatsapp-fixo:hover { transform: scale(1.06); }
+  .whatsapp-fixo svg { width: 28px; height: 28px; }
+
+  /* Marcar horário */
+  .dias-linha { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 18px; }
+  .dia-botao {
+    flex-shrink: 0; min-width: 58px; text-align: center; padding: 10px 6px;
+    border: 1px solid #e2e8f0; border-radius: var(--raio); background: #fff;
+    font-size: 0.82rem; font-weight: 700; color: #334155; cursor: pointer;
+  }
+  .dia-botao .num { display: block; font-size: 1rem; margin-top: 2px; }
+  .dia-botao.activo { background: var(--cor-principal); border-color: var(--cor-principal); color: #fff; }
+
+  .horas-grelha { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+  .hora-botao {
+    padding: 12px 4px; border-radius: var(--raio); border: 1px solid #e2e8f0;
+    background: #fff; font-weight: 700; font-size: 0.92rem; color: #1e293b; cursor: pointer;
+  }
+  .hora-botao.ocupada { background: #f1f5f9; color: #94a3b8; text-decoration: line-through; cursor: not-allowed; border-color: #f1f5f9; }
+  .hora-botao.livre:hover { border-color: var(--cor-detalhe); }
+  .hora-botao.seleccionada { background: var(--cor-detalhe); border-color: var(--cor-detalhe); color: #fff; }
+  .legenda-horas { display: flex; gap: 16px; font-size: 0.8rem; color: #64748b; margin-bottom: 18px; }
+  .legenda-horas span { display: inline-flex; align-items: center; gap: 6px; }
+  .ponto-legenda { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+  .ponto-legenda.livre { background: #fff; border: 1px solid #cbd5e1; }
+  .ponto-legenda.ocupada { background: #f1f5f9; }
+  .ponto-legenda.seleccionada { background: var(--cor-detalhe); }
+
+  .campo-marcar { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .campo-marcar label { font-size: 0.85rem; font-weight: 700; color: var(--cor-principal); }
+  .campo-marcar input {
+    font-family: var(--fonte); font-size: 0.95rem; padding: 12px 14px;
+    border: 1px solid #e2e8f0; border-radius: var(--raio); background: #f8fafc;
+  }
+  .botao-confirmar-marcacao {
+    width: 100%; padding: 15px; border: none; border-radius: var(--raio);
+    background: var(--cor-conversao); color: #042f14; font-weight: 800; font-size: 1rem;
+    cursor: pointer;
+  }
+  .botao-confirmar-marcacao:disabled { background: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+  .nota-marcacao { font-size: 0.8rem; color: #64748b; margin-top: 12px; text-align: center; }
 </style>
 </head>
 <body>
@@ -132,22 +199,23 @@
       <img src="logo.png" alt="Sorriso Barber Logo">
       <div class="logo-nome">JECKSON <span>SORRISO</span></div>
     </div>
-    <a class="nav-contacto" href="https://wa.me/258871710898" target="_blank" rel="noopener noreferrer">Agendar</a>
+    <a class="nav-contacto" href="https://wa.me/258871710898">Agendar</a>
   </div>
 </header>
 
-<div class="hero">
+<div class="hero" id="hero-barbearia">
   <div class="wrap">
-    <img src="logo.png" alt="Sorriso Barber Logo" class="hero-logo">
+    <img src="logo.png" alt="Sorriso Barber Logo" class="hero-logo" id="logo-hero">
     <h1>Jeckson <span>Barbeiro Sorriso</span></h1>
     <p>Cortes modernos, barba e acabamento perfeito na Beira.</p>
     <div class="horario">Aberto até às 16:00h • Macuti • Atendimento ao Domicílio</div>
     <br>
-    <a class="cta" href="https://wa.me/258871710898?text=Ol%C3%A1%20Barbeiro%20Sorriso%2C%20quero%20agendar%20um%20hor%C3%A1rio" target="_blank" rel="noopener noreferrer">
+    <a class="cta" href="https://wa.me/258871710898?text=Ol%C3%A1%20Barbeiro%20Sorriso%2C%20quero%20agendar%20um%20hor%C3%A1rio">
       Agendar Corte no WhatsApp
     </a>
   </div>
 </div>
+<div class="poste-barbeiro"></div>
 
 <section id="porque">
   <div class="wrap">
@@ -176,7 +244,7 @@
       <div class="item-preco"><span class="servico">Corte com Pintura</span><span class="valor">100 MT</span></div>
       <div class="item-preco"><span class="servico">Corte com Barba</span><span class="valor">80 MT</span></div>
       <div class="item-preco"><span class="servico">Corte com Pigmentação</span><span class="valor">85 MT</span></div>
-      <div class="item-preco"><span class="servico">Corte Completo (VIP)</span><span class="valor">150 MT</span></div>
+      <div class="item-preco destaque"><span class="servico">Corte Completo (VIP)</span><span class="valor">150 MT</span></div>
       <div class="item-preco"><span class="servico">Alinhamento</span><span class="valor">20 / 40 MT</span></div>
       <div class="item-preco"><span class="servico">Barba</span><span class="valor">20 MT</span></div>
     </div>
@@ -190,10 +258,36 @@
   <div class="wrap">
     <h2>Nossos Trabalhos</h2>
     <div class="grelha-fotos">
-      <img src="trabalho-1.jpg" alt="Corte degradê com risco personalizado" loading="lazy">
-      <img src="trabalho-2.jpg" alt="Texturização e definição de cachos" loading="lazy">
-      <img src="trabalho-3.jpg" alt="Atendimento com corte e acabamento finalizado" loading="lazy">
+      <img src="trabalho-1.jpg" alt="Corte e acabamento em cliente" loading="lazy">
+      <img src="trabalho-2.jpg" alt="Texturização e cachos" loading="lazy">
+      <img src="trabalho-3.jpg" alt="Corte de perfil" loading="lazy">
     </div>
+  </div>
+</section>
+
+<section id="marcar">
+  <div class="wrap">
+    <h2>Marcar Horário</h2>
+
+    <div class="dias-linha" id="dias-linha"></div>
+
+    <div class="legenda-horas">
+      <span><span class="ponto-legenda livre"></span> Livre</span>
+      <span><span class="ponto-legenda seleccionada"></span> Escolhida</span>
+      <span><span class="ponto-legenda ocupada"></span> Ocupada</span>
+    </div>
+
+    <div class="horas-grelha" id="horas-grelha"></div>
+
+    <div class="campo-marcar">
+      <label for="campo-marcar-nome">O teu nome</label>
+      <input type="text" id="campo-marcar-nome" placeholder="Ex: Jairo">
+    </div>
+
+    <button class="botao-confirmar-marcacao" id="botao-confirmar-marcacao" disabled>
+      Escolhe um dia e uma hora
+    </button>
+    <div class="nota-marcacao">A marcação só fica confirmada depois de receberes a resposta do Jeckson no WhatsApp.</div>
   </div>
 </section>
 
@@ -201,9 +295,9 @@
   <div class="wrap" style="text-align: center;">
     <h2>Contactos</h2>
     <div class="contacto-lista">
-      <div><a href="https://wa.me/258871710898" target="_blank" rel="noopener noreferrer">WhatsApp: 87 171 0898</a></div>
+      <div><a href="https://wa.me/258871710898">WhatsApp: 87 171 0898</a></div>
       <div><a href="tel:+258855409556">Ligar: 85 540 9556</a></div>
-      <div>Macuti, Beira</div>
+      <div>Macuti, Beira, Moçambique</div>
     </div>
   </div>
 </section>
@@ -212,9 +306,181 @@
   <div class="wrap">Jeckson Barbeiro Sorriso © 2026 · Todos os direitos reservados</div>
 </footer>
 
-<a class="whatsapp-fixo" href="https://wa.me/258871710898?text=Ol%C3%A1%20Barbeiro%20Sorriso%2C%20quero%20agendar%20um%20hor%C3%A1rio" target="_blank" rel="noopener noreferrer">
-  Agendar Horário no WhatsApp
+<a class="whatsapp-fixo" href="https://wa.me/258871710898?text=Ol%C3%A1%20Barbeiro%20Sorriso%2C%20quero%20agendar%20um%20hor%C3%A1rio" aria-label="Agendar no WhatsApp">
+  <svg viewBox="0 0 32 32" fill="#042f14" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16.02 3C9.37 3 3.98 8.39 3.98 15.04c0 2.24.61 4.34 1.67 6.15L4 29l8-1.6a12.97 12.97 0 0 0 4.02.64c6.65 0 12.04-5.39 12.04-12.04S22.67 3 16.02 3Zm0 21.86c-1.32 0-2.6-.26-3.78-.75l-.27-.12-4.75.95.96-4.63-.14-.28a9.83 9.83 0 0 1-1.48-5.19c0-5.46 4.44-9.9 9.9-9.9 2.64 0 5.13 1.03 6.99 2.9a9.83 9.83 0 0 1 2.9 6.99c0 5.46-4.44 9.9-9.9 9.9Zm5.42-7.41c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.65-2.05-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48 0 1.46 1.07 2.87 1.22 3.07.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.41-.07-.13-.27-.2-.57-.35Z"/>
+  </svg>
 </a>
+
+<script>
+(function () {
+  // ============================================================
+  // HORAS OCUPADAS — o Jeckson edita esta lista à mão.
+  // Formato da data: "AAAA-MM-DD". Formato da hora: "HH:00".
+  // Para marcar um dia todo como ocupado, coloca todas as horas
+  // desse dia na lista. Para libertar, apaga a hora da lista.
+  // ============================================================
+  var horariosOcupados = {
+    // Exemplo — troca pelas datas e horas reais:
+    // "2026-09-16": ["09:00", "11:00", "14:00"],
+    // "2026-09-17": ["08:00", "08:00"]
+  };
+
+  var HORAS = ["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00"];
+  var DIAS_SEMANA = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+
+  var diasLinha = document.getElementById('dias-linha');
+  var horasGrelha = document.getElementById('horas-grelha');
+  var botaoConfirmar = document.getElementById('botao-confirmar-marcacao');
+  var campoNome = document.getElementById('campo-marcar-nome');
+
+  var diaSeleccionado = null; // objeto { chave: "AAAA-MM-DD", rotulo: "Seg 15/09" }
+  var horaSeleccionada = null;
+
+  function paraChave(data) {
+    var y = data.getFullYear();
+    var m = String(data.getMonth() + 1).padStart(2, '0');
+    var d = String(data.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + d;
+  }
+
+  function gerarDias() {
+    var hoje = new Date();
+    for (var i = 0; i < 7; i++) {
+      var data = new Date(hoje);
+      data.setDate(hoje.getDate() + i);
+      var chave = paraChave(data);
+      var rotuloCurto = DIAS_SEMANA[data.getDay()];
+      var numero = data.getDate();
+
+      var botao = document.createElement('div');
+      botao.className = 'dia-botao' + (i === 0 ? ' activo' : '');
+      botao.innerHTML = (i === 0 ? 'Hoje' : rotuloCurto) + '<span class="num">' + numero + '</span>';
+      botao.dataset.chave = chave;
+      botao.dataset.rotulo = rotuloCurto + ' ' + String(numero).padStart(2,'0') + '/' + String(data.getMonth()+1).padStart(2,'0');
+
+      botao.addEventListener('click', function () {
+        document.querySelectorAll('.dia-botao').forEach(function (b) { b.classList.remove('activo'); });
+        this.classList.add('activo');
+        diaSeleccionado = { chave: this.dataset.chave, rotulo: this.dataset.rotulo };
+        horaSeleccionada = null;
+        renderizarHoras();
+        actualizarBotao();
+      });
+
+      diasLinha.appendChild(botao);
+
+      if (i === 0) diaSeleccionado = { chave: chave, rotulo: 'Hoje ' + String(numero).padStart(2,'0') + '/' + String(data.getMonth()+1).padStart(2,'0') };
+    }
+  }
+
+  function renderizarHoras() {
+    horasGrelha.innerHTML = '';
+    var ocupadasHoje = horariosOcupados[diaSeleccionado.chave] || [];
+    HORAS.forEach(function (hora) {
+      var ocupada = ocupadasHoje.indexOf(hora) !== -1;
+      var botao = document.createElement('div');
+      botao.textContent = hora;
+      botao.className = 'hora-botao ' + (ocupada ? 'ocupada' : 'livre');
+      if (!ocupada) {
+        botao.addEventListener('click', function () {
+          document.querySelectorAll('.hora-botao').forEach(function (b) { b.classList.remove('seleccionada'); });
+          botao.classList.add('seleccionada');
+          horaSeleccionada = hora;
+          actualizarBotao();
+        });
+      }
+      horasGrelha.appendChild(botao);
+    });
+  }
+
+  function actualizarBotao() {
+    if (diaSeleccionado && horaSeleccionada) {
+      botaoConfirmar.disabled = false;
+      botaoConfirmar.textContent = 'Confirmar ' + diaSeleccionado.rotulo + ' às ' + horaSeleccionada + ' no WhatsApp';
+    } else {
+      botaoConfirmar.disabled = true;
+      botaoConfirmar.textContent = 'Escolhe um dia e uma hora';
+    }
+  }
+
+  botaoConfirmar.addEventListener('click', function () {
+    if (!diaSeleccionado || !horaSeleccionada) return;
+    var nome = campoNome.value.trim();
+    var linhas = [
+      'Olá! Quero marcar um horário:',
+      'Dia: ' + diaSeleccionado.rotulo,
+      'Hora: ' + horaSeleccionada
+    ];
+    if (nome) linhas.push('Nome: ' + nome);
+    var mensagem = encodeURIComponent(linhas.join('\n'));
+    window.open('https://wa.me/258871710898?text=' + mensagem, '_blank');
+  });
+
+  gerarDias();
+  renderizarHoras();
+})();
+
+// ============================================================
+// Herói animado: ícones de barbearia a flutuar + logótipo a balançar
+// ============================================================
+(function animarHeroi() {
+  var hero = document.getElementById('hero-barbearia');
+  var logo = document.getElementById('logo-hero');
+  if (!hero) return;
+
+  var reduzirMovimento = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduzirMovimento) return;
+
+  if (logo) logo.classList.add('logo-anim');
+
+  // Ícones simples, em linha, sem dependências externas
+  var icones = [
+    // Tesoura
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="6" r="2.4"/><circle cx="6" cy="18" r="2.4"/><line x1="20" y1="4" x2="7.8" y2="14"/><line x1="20" y1="20" x2="7.8" y2="10"/></svg>',
+    // Pente
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="4" rx="1"/><line x1="5" y1="8" x2="5" y2="20"/><line x1="9" y1="8" x2="9" y2="20"/><line x1="13" y1="8" x2="13" y2="20"/><line x1="17" y1="8" x2="17" y2="20"/></svg>',
+    // Máquina de barbear
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="2" width="6" height="9" rx="1.5"/><rect x="5" y="11" width="8" height="9" rx="1.5"/><line x1="9" y1="20" x2="9" y2="22"/></svg>'
+  ];
+
+  var quantidade = 7;
+  for (var i = 0; i < quantidade; i++) {
+    var el = document.createElement('div');
+    el.className = 'icone-flutuante';
+    el.innerHTML = icones[i % icones.length];
+
+    var tamanho = 20 + Math.random() * 22;           // 20–42px
+    var esquerda = Math.random() * 92;                 // 0–92%
+    var cima = Math.random() * 80;                      // 0–80%
+    var duracao = 6 + Math.random() * 6;                // 6–12s
+    var atraso = Math.random() * 5;                     // 0–5s
+    var sentido = Math.random() > 0.5 ? 1 : -1;
+
+    el.style.width = tamanho + 'px';
+    el.style.height = tamanho + 'px';
+    el.style.left = esquerda + '%';
+    el.style.top = cima + '%';
+    el.style.animation = 'flutuarIcone' + (i % 2) + ' ' + duracao + 's ease-in-out ' + atraso + 's infinite';
+    el.style.setProperty('--sentido', sentido);
+
+    hero.appendChild(el);
+  }
+
+  // Duas variações de movimento, para não ficar tudo sincronizado
+  var folha = document.createElement('style');
+  folha.textContent =
+    '@keyframes flutuarIcone0 {' +
+    '  0%,100% { transform: translate(0,0) rotate(0deg); opacity: 0.5; }' +
+    '  50%     { transform: translate(calc(10px * var(--sentido)), -22px) rotate(calc(14deg * var(--sentido))); opacity: 0.9; }' +
+    '}' +
+    '@keyframes flutuarIcone1 {' +
+    '  0%,100% { transform: translate(0,0) rotate(0deg); opacity: 0.35; }' +
+    '  50%     { transform: translate(calc(-14px * var(--sentido)), -14px) rotate(calc(-10deg * var(--sentido))); opacity: 0.75; }' +
+    '}';
+  document.head.appendChild(folha);
+})();
+</script>
 
 </body>
 </html>
